@@ -1,0 +1,7 @@
+{
+  "name": "DermAI Skin Analyst",
+  "description": "A sophisticated AI-powered skin analysis tool that identifies skin types, concerns, and provides personalized skincare routines using advanced image recognition.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
