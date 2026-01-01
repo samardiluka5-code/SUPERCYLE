@@ -12,7 +12,7 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f8fafc;
+      background-color: #fcfdfe;
       color: #0f172a;
     }
     .mono {
@@ -23,15 +23,14 @@
       backdrop-filter: blur(12px);
     }
     .clinical-gradient {
-      background: radial-gradient(circle at top left, #f1f5f9 0%, #ffffff 100%);
+      background: radial-gradient(circle at top left, #f8fafc 0%, #ffffff 100%);
     }
-    .premium-shimmer {
-      background: linear-gradient(90deg, #0f172a 0%, #334155 50%, #0f172a 100%);
-      background-size: 200% auto;
-      animation: shimmer 3s linear infinite;
+    @keyframes scan {
+      0% { top: 0; }
+      100% { top: 100%; }
     }
-    @keyframes shimmer {
-      to { background-position: 200% center; }
+    .animate-scan {
+      animation: scan 2s linear infinite;
     }
   </style>
 <script type="importmap">
@@ -48,5 +47,7 @@
 </head>
 <body class="clinical-gradient">
   <div id="root"></div>
+  <!-- CRITICAL: Added entry point script tag to resolve blank screen on deployment -->
+  <script type="module" src="index.tsx"></script>
 </body>
 </html>
