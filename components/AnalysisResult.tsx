@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { SkinAnalysisResult, User } from '../types';
+import { DermalMetricsChart } from './DermalMetricsChart';
 import { 
   Check, 
   ExternalLink, 
@@ -15,7 +16,8 @@ import {
   Zap,
   Activity,
   Heart,
-  Award
+  Award,
+  TrendingUp
 } from 'lucide-react';
 
 interface ResultProps {
@@ -32,8 +34,24 @@ export const AnalysisResult: React.FC<ResultProps> = ({ result, user, onReset, o
   const eveningRoutine = result?.recommendations?.routine?.evening || [];
   const products = result?.recommendations?.products || [];
 
+  const metrics = [
+    { label: 'Hydration', value: result.hydrationLevel },
+    { label: 'Resilience', value: 100 - result.sensitivityScore },
+    { label: 'Vitality', value: result.healthScore },
+    { label: 'Clarity', value: 85 }, // Simulated
+    { label: 'Texture', value: 100 - result.ageIndex },
+  ];
+
+  const baselineMetrics = [
+    { label: 'Hydration', value: 45 },
+    { label: 'Resilience', value: 60 },
+    { label: 'Vitality', value: 55 },
+    { label: 'Clarity', value: 70 },
+    { label: 'Texture', value: 50 },
+  ];
+
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Overview Block */}
       <div className="bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-sm">
         <div className="flex flex-col md:flex-row justify-between items-start gap-12">
@@ -58,73 +76,74 @@ export const AnalysisResult: React.FC<ResultProps> = ({ result, user, onReset, o
         </div>
       </div>
 
-      {/* Bio-Scores Section - Replicated from Screenshot */}
-      <div className="bg-white border-2 border-blue-400 rounded-[3rem] overflow-hidden shadow-2xl shadow-blue-400/5">
-        <div className="divide-y divide-slate-50">
-          {/* Hydration Score */}
-          <div className="p-12 md:p-16 flex items-center justify-between group">
-            <div className="flex-1">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.25em] mb-6">Hydration Bio-Factor</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-7xl font-black text-slate-900 tracking-tighter">
-                  {isPremium ? result.hydrationLevel : '4.5'}
-                </span>
-                <span className="text-2xl font-bold text-slate-400">%</span>
-              </div>
-              <div className="mt-8 w-full h-2 bg-slate-50 rounded-full overflow-hidden max-w-md">
-                <div 
-                  className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" 
-                  style={{ width: isPremium ? `${result.hydrationLevel}%` : '4.5%' }} 
-                />
-              </div>
-            </div>
-            <div className="hidden sm:block pl-10">
-              <Droplet className="w-24 h-24 text-slate-50 group-hover:text-blue-50/50 transition-colors" />
-            </div>
+      {/* Analytical Matrix - Radar Chart Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-7 bg-white border border-slate-100 rounded-[3rem] p-12 shadow-sm flex flex-col items-center justify-center min-h-[500px] relative overflow-hidden group">
+          <div className="absolute top-10 left-10 flex items-center gap-3">
+            <TrendingUp className="w-5 h-5 text-slate-950" />
+            <h3 className="text-lg font-black text-slate-950 uppercase tracking-tighter">Dermal Morphometry</h3>
           </div>
+          
+          <DermalMetricsChart 
+            current={metrics} 
+            baseline={baselineMetrics} 
+            isPremium={isPremium} 
+          />
 
-          {/* Sensitivity Score */}
-          <div className="p-12 md:p-16 flex items-center justify-between group">
-            <div className="flex-1">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.25em] mb-6">Sensitivity Index</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-7xl font-black text-slate-900 tracking-tighter">
-                  {isPremium ? result.sensitivityScore : '8.5'}
-                </span>
-                <span className="text-2xl font-bold text-slate-400">%</span>
-              </div>
-              <div className="mt-8 w-full h-2 bg-slate-50 rounded-full overflow-hidden max-w-md">
-                <div 
-                  className="h-full bg-rose-500 rounded-full transition-all duration-1000 ease-out" 
-                  style={{ width: isPremium ? `${result.sensitivityScore}%` : '8.5%' }} 
-                />
-              </div>
+          {!isPremium && (
+            <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center pt-24 text-center">
+              <Lock className="w-6 h-6 text-slate-400 mb-4" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Historical comparison restricted</p>
+              <button onClick={onUpgrade} className="px-8 py-3 bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full">Unlock Longitudinal View</button>
             </div>
-            <div className="hidden sm:block pl-10">
-              <Shield className="w-24 h-24 text-slate-50 group-hover:text-rose-50/50 transition-colors" />
-            </div>
-          </div>
+          )}
         </div>
 
-        {!isPremium && (
-          <div className="bg-slate-50 p-8 flex flex-col sm:flex-row items-center justify-center gap-6 border-t border-slate-100">
-            <div className="flex items-center gap-3">
-              <Lock className="w-5 h-5 text-slate-400" />
-              <p className="text-sm font-bold text-slate-600 uppercase tracking-widest">Clinical Bio-Metrics Restricted</p>
+        {/* Score Cards Side */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="bg-slate-950 rounded-[2.5rem] p-10 text-white flex flex-col justify-between h-full group hover:shadow-2xl hover:shadow-slate-200 transition-all">
+            <div className="space-y-8">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Hydration Bio-Factor</span>
+                <Droplet className="w-5 h-5 text-blue-400" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-7xl font-black tracking-tighter">{isPremium ? result.hydrationLevel : '??'}</span>
+                <span className="text-2xl font-bold text-slate-600">%</span>
+              </div>
+              <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-blue-500 transition-all duration-1000" 
+                  style={{ width: isPremium ? `${result.hydrationLevel}%` : '45%' }} 
+                />
+              </div>
             </div>
-            <button 
-              onClick={onUpgrade}
-              className="px-10 py-3.5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-full shadow-xl hover:bg-slate-800 transition-all active:scale-95"
-            >
-              Unlock Authorized Scores
-            </button>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-12 group-hover:text-slate-300 transition-colors">
+              Intracellular fluid density optimized for dermal barrier stability.
+            </p>
           </div>
-        )}
+
+          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 flex flex-col justify-between group hover:border-rose-100 transition-all">
+            <div className="space-y-8">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sensitivity Index</span>
+                <Shield className="w-5 h-5 text-rose-500" />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-7xl font-black text-slate-950 tracking-tighter">{isPremium ? result.sensitivityScore : '??'}</span>
+                <span className="text-2xl font-bold text-slate-300">%</span>
+              </div>
+            </div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-12">
+              Neural reactivity score across mapped cutaneous sectors.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Health Matrix Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-10 flex flex-col justify-between group hover:border-emerald-200 transition-all">
+        <div className="bg-white border border-slate-100 rounded-[2rem] p-10 flex flex-col justify-between group hover:border-emerald-200 transition-all">
           <div className="bg-emerald-50 w-14 h-14 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 transition-transform">
             <Heart className="w-7 h-7 text-emerald-500" />
           </div>
@@ -134,7 +153,7 @@ export const AnalysisResult: React.FC<ResultProps> = ({ result, user, onReset, o
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-10 flex flex-col justify-between group hover:border-amber-200 transition-all">
+        <div className="bg-white border border-slate-100 rounded-[2rem] p-10 flex flex-col justify-between group hover:border-amber-200 transition-all">
           <div className="bg-amber-50 w-14 h-14 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 transition-transform">
             <Target className="w-7 h-7 text-amber-500" />
           </div>
@@ -144,7 +163,7 @@ export const AnalysisResult: React.FC<ResultProps> = ({ result, user, onReset, o
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-10 flex flex-col justify-between group hover:border-indigo-200 transition-all">
+        <div className="bg-white border border-slate-100 rounded-[2rem] p-10 flex flex-col justify-between group hover:border-indigo-200 transition-all">
           <div className="bg-indigo-50 w-14 h-14 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 transition-transform">
             <Award className="w-7 h-7 text-indigo-500" />
           </div>
